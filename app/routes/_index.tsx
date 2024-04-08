@@ -1,41 +1,39 @@
-import type { MetaFunction } from "@remix-run/node";
+import type { MetaFunction } from '@remix-run/node';
+import { FormEvent, useState } from 'react';
+import Button from '~/components/atoms/Button';
+import FormInput from '~/components/atoms/FormTextInput';
+import YouTubePlayer from '~/components/molecules/YoutubePlayer';
 
 export const meta: MetaFunction = () => {
-  return [
-    { title: "New Remix App" },
-    { name: "description", content: "Welcome to Remix!" },
-  ];
+  return [{ title: 'New Remix App' }, { name: 'description', content: 'Welcome to Remix!' }];
 };
 
 export default function Index() {
+  const [videoUserInput, setVideoUserInput] = useState('');
+  const [playingVideoId, setPlayingVideoId] = useState('M7lc1UVf-VE');
+
+  function addVideo(e: FormEvent) {
+    e.preventDefault();
+    const videoId = videoUserInput.split('?v=')[1];
+    setPlayingVideoId(videoId);
+    setVideoUserInput('');
+  }
+
   return (
-    <div style={{ fontFamily: "system-ui, sans-serif", lineHeight: "1.8" }}>
-      <h1>Welcome to Remix</h1>
-      <ul>
-        <li>
-          <a
-            target="_blank"
-            href="https://remix.run/tutorials/blog"
-            rel="noreferrer"
-          >
-            15m Quickstart Blog Tutorial
-          </a>
-        </li>
-        <li>
-          <a
-            target="_blank"
-            href="https://remix.run/tutorials/jokes"
-            rel="noreferrer"
-          >
-            Deep Dive Jokes App Tutorial
-          </a>
-        </li>
-        <li>
-          <a target="_blank" href="https://remix.run/docs" rel="noreferrer">
-            Remix Docs
-          </a>
-        </li>
-      </ul>
+    <div className=" max-w-[1200px]">
+      <YouTubePlayer className="w-full aspect-video mb-8" videoId={playingVideoId} />
+
+      <form className="flex" onSubmit={addVideo}>
+        <FormInput
+          value={videoUserInput}
+          handleChange={setVideoUserInput}
+          className="mr-4 grow"
+          placeholder="https://www.youtube.com/watch?v=..."
+        />
+        <Button icon="add" className="shrink-0 w-[200px]">
+          追加
+        </Button>
+      </form>
     </div>
   );
 }
