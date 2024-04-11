@@ -16,10 +16,10 @@ let currentId = 0;
 
 wss.on('connection', function (ws) {
   currentId++;
-
   const id = 'client-' + currentId;
-
   CLIENTS[id] = ws;
+
+  console.log(`${id} connected.`);
 
   ws.on('message', function (message) {
     console.log('received: %s', message);
@@ -30,7 +30,7 @@ wss.on('connection', function (ws) {
   });
 
   ws.on('close', function () {
-    console.log('ユーザー：' + id + ' がブラウザを閉じました');
+    console.log(`${id} disconnected.`);
     delete CLIENTS[id];
   });
 });

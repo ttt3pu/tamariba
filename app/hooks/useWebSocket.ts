@@ -9,8 +9,15 @@ export function useWebSocket() {
   }
 
   function onMessage(event: MessageEvent) {
-    const message = JSON.parse(event.data).value;
-    setChatLogs((prevChatLogs) => [...prevChatLogs, message]);
+    const data: {
+      type: 'chat';
+      value: string;
+    } = JSON.parse(event.data);
+
+    if (data.type === 'chat') {
+      const message = JSON.parse(event.data).value;
+      setChatLogs((prevChatLogs) => [...prevChatLogs, message]);
+    }
   }
 
   const onMessageCallback = useCallback(onMessage, []);
