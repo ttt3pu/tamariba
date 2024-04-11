@@ -1,10 +1,20 @@
-import { Links, Meta, Outlet, Scripts, ScrollRestoration } from '@remix-run/react';
+import { Links, Meta, Outlet, Scripts, ScrollRestoration, json, useLoaderData } from '@remix-run/react';
 import type { LinksFunction } from '@remix-run/node';
 import stylesheet from '~/tailwind.css?url';
 
 export const links: LinksFunction = () => [{ rel: 'stylesheet', href: stylesheet }];
 
+export async function loader() {
+  return json({
+    ENV: {
+      WS_PORT: process.env.WS_PORT,
+    },
+  });
+}
+
 export function Layout({ children }: { children: React.ReactNode }) {
+  const data = useLoaderData<typeof loader>();
+
   return (
     <html lang="ja">
       <head>
@@ -16,6 +26,11 @@ export function Layout({ children }: { children: React.ReactNode }) {
       <body className=" bg-gray-700 p-10">
         {children}
         <ScrollRestoration />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `window.ENV = ${JSON.stringify(data.ENV)}`,
+          }}
+        />
         <Scripts />
       </body>
     </html>
