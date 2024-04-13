@@ -1,6 +1,7 @@
 import { Links, Meta, Outlet, Scripts, ScrollRestoration, json, useLoaderData } from '@remix-run/react';
 import type { LinksFunction } from '@remix-run/node';
 import stylesheet from '~/tailwind.css?url';
+import { useOauth } from './hooks/useOauth';
 
 export const links: LinksFunction = () => [{ rel: 'stylesheet', href: stylesheet }];
 
@@ -8,12 +9,16 @@ export async function loader() {
   return json({
     ENV: {
       WS_PORT: process.env.WS_PORT,
+      OAUTH_CLIENT_ID: process.env.OAUTH_CLIENT_ID,
+      OAUTH_REDIRECT_URL: process.env.OAUTH_REDIRECT_URL,
     },
   });
 }
 
 export function Layout({ children }: { children: React.ReactNode }) {
   const data = useLoaderData<typeof loader>();
+
+  useOauth();
 
   return (
     <html lang="ja">
