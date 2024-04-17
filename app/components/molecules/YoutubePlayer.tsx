@@ -1,7 +1,7 @@
-import ReactYoutube from "./ReactYoutube.client";
-import { ClientOnly } from "remix-utils/client-only";
+import ReactYoutube from '~/libs/ReactYoutube.client';
+import { ClientOnly } from 'remix-utils/client-only';
 
-type Props =  {
+type Props = {
   videoId: string;
   className?: string;
 };
