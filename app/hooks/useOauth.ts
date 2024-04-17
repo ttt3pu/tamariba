@@ -1,13 +1,13 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { UserManager, WebStorageStateStore } from 'oidc-client-ts';
-import { useLocation, useNavigate } from '@remix-run/react';
-import { useDiscordUser } from './useDiscordUser';
+import { useFetcher, useLocation, useNavigate } from '@remix-run/react';
+import { useStore } from '~/store';
 
 export function useOauth() {
-  const [userManager, setUserManager] = useState<UserManager | undefined>();
   const location = useLocation();
   const navigate = useNavigate();
-  const { discordUser, setDiscordUser } = useDiscordUser();
+  const store = useStore();
+  const fetcher = useFetcher();
 
   useEffect(() => {
     const client = new UserManager({
@@ -23,7 +23,6 @@ export function useOauth() {
         revocation_endpoint: 'https://discord.com/api/oauth2/token/revoke',
       },
     });
-    setUserManager(client);
 
     (async () => {
       if (location.pathname === '/callback') {
@@ -37,17 +36,31 @@ export function useOauth() {
         return await client.signinRedirect();
       }
 
-      const discordUserResponse: DiscordUser = await fetch('https://discordapp.com/api/users/@me', {
+      const discordUserResponse: DiscordUserResponse = await fetch('https://discordapp.com/api/users/@me', {
         headers: {
           Authorization: `Bearer ${user.access_token}`,
         },
       }).then((r) => r.json());
 
-      setDiscordUser({
+      store.setDiscordUser({
         id: discordUserResponse.id,
-        username: discordUserResponse.username,
+        name: discordUserResponse.username,
         avatar: discordUserResponse.avatar,
       });
+
+      fetcher.submit(
+        {
+          intent: 'check',
+          id: discordUserResponse.id,
+          name: discordUserResponse.username,
+          avatar: discordUserResponse.avatar,
+        },
+        {
+          action: '/api/user',
+          method: 'POST',
+        },
+      );
     })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 }

@@ -1,11 +1,37 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useFetcher } from '@remix-run/react';
+import { useEffect, useState } from 'react';
+import { ChatLogState, useStore } from '~/store';
 
 export function useWebSocket() {
   const [wsClient, setWsClient] = useState<WebSocket | undefined>();
-  const [chatLogs, setChatLogs] = useState<string[]>([]);
+  const { chatLogs, setChatLogs, discordUser } = useStore();
+  const fetcher = useFetcher();
 
   function sendChat(text: string) {
     wsClient!.send(JSON.stringify({ type: 'chat', value: text }));
+    fetcher.submit(
+      {
+        intent: 'new',
+        user_id: discordUser!.id,
+        content: text,
+      },
+      {
+        action: '/api/chat',
+        method: 'POST',
+      },
+    );
+  }
+
+  function getChat() {
+    fetcher.submit(
+      {
+        intent: 'get',
+      },
+      {
+        action: '/api/chat',
+        method: 'GET',
+      },
+    );
   }
 
   function onMessage(event: MessageEvent) {
@@ -15,12 +41,9 @@ export function useWebSocket() {
     } = JSON.parse(event.data);
 
     if (data.type === 'chat') {
-      const message = JSON.parse(event.data).value;
-      setChatLogs((prevChatLogs) => [...prevChatLogs, message]);
+      getChat();
     }
   }
-
-  const onMessageCallback = useCallback(onMessage, []);
 
   useEffect(() => {
     const client = new WebSocket(`ws://localhost:${window.ENV.WS_PORT}`);
@@ -30,9 +53,17 @@ export function useWebSocket() {
       console.log('WebSocket connected');
     });
 
-    client.addEventListener('message', onMessageCallback);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [onMessageCallback]);
+    client.addEventListener('message', onMessage);
+    getChat();
+  }, []);
+
+  useEffect(() => {
+    if (!fetcher.data) {
+      return;
+    }
+    //  FIXME: リアルタイム通信できていない。callbackとか使う必要がありそう
+    setChatLogs(fetcher.data as ChatLogState[]);
+  }, [fetcher.data, setChatLogs]);
 
   return {
     chatLogs,
