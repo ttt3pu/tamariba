@@ -10,7 +10,9 @@
     "start-ws": "tsx server/ws",
     "start": "remix-serve ./build/server/index.js",
     "prettier:fix": "prettier . --write --ignore-path .gitignore",
-    "typecheck": "tsc"
+    "typecheck": "tsc",
+    "prisma:migrate": "prisma migrate dev",
+    "prisma:generate": "prisma generate"
   },
   "dependencies": {
     "@prisma/client": "^5.12.1",
