@@ -8,6 +8,7 @@ export function useWebSocket() {
   const fetcher = useFetcher();
 
   function sendChat(text: string) {
+    //  FIXME: 順番が逆になってる
     wsClient!.send(JSON.stringify({ type: 'chat', value: text }));
     fetcher.submit(
       {
@@ -61,7 +62,6 @@ export function useWebSocket() {
     if (!fetcher.data) {
       return;
     }
-    //  FIXME: リアルタイム通信できていない。callbackとか使う必要がありそう
     setChatLogs(fetcher.data as ChatLogState[]);
   }, [fetcher.data, setChatLogs]);
 
