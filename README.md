@@ -1,36 +1,34 @@
-# Welcome to Remix + Vite!
+# tamariba
 
-📖 See the [Remix docs](https://remix.run/docs) and the [Remix Vite docs](https://remix.run/docs/en/main/future/vite) for details on supported features.
+## Tools required
 
-## Development
+- VSCode
+- Docker
 
-Run the Vite dev server:
+For the following tools, recommended to install using [asdf](https://asdf-vm.com).
 
-```shellscript
-npm run dev
-```
+- pnpm
+- Node.js
+- direnv
 
-## Deployment
+## commands
 
-First, build your app for production:
-
-```sh
-npm run build
-```
-
-Then run the app in production mode:
+### Setup
 
 ```sh
-npm start
+cp .sample.envrc .envrc
+direnv allow
+make setup
 ```
 
-Now you'll need to pick a host to deploy it to.
+### Start dev server
 
-### DIY
+```sh
+make dev
+```
 
-If you're familiar with deploying Node applications, the built-in Remix app server is production-ready.
+## Creating migration file
 
-Make sure to deploy the output of `npm run build`
-
-- `build/server`
-- `build/client`
+```sh
+pnpm prisma:migrate --name migration_file_name
+```
