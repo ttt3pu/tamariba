@@ -1,7 +1,7 @@
 import { ActionFunction, LoaderFunction, json } from '@remix-run/node';
-import { sanitize } from '~/serverUtils/domplify';
-import { prisma } from '~/serverUtils/prismaClient';
-import { useErrors } from '~/serverUtils/useErrors';
+import { sanitize } from '~/utils/server/domplify';
+import { prisma } from '~/utils/server/prismaClient';
+import { useErrors } from '~/utils/server/useErrors';
 
 export const loader: LoaderFunction = async () => {
   const chatLogs = await prisma.chatLog.findMany({

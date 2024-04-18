@@ -1,6 +1,6 @@
 import { ActionFunction, json } from '@remix-run/node';
-import { prisma } from '~/serverUtils/prismaClient';
-import { useErrors } from '~/serverUtils/useErrors';
+import { prisma } from '~/utils/server/prismaClient';
+import { useErrors } from '~/utils/server/useErrors';
 
 export const action: ActionFunction = async ({ request }) => {
   const formData = await request.formData();
