@@ -1,36 +1,55 @@
-import { FormEvent, useState } from 'react';
-import FormInput from '../atoms/FormTextInput';
+import { FormEvent, useEffect, useState } from 'react';
+import FormInput from '~/components/atoms/FormTextInput';
 import { IoMdSend } from 'react-icons/io';
 import { useWebSocket } from '~/hooks/useWebSocket';
 import { useStore } from '~/store';
+import { useFetcher } from '@remix-run/react';
 
 export default function ChatPanel() {
   const { sendChat } = useWebSocket();
-  const store = useStore();
+  const { discordUser, chatLogs } = useStore();
+  const fetcher = useFetcher();
 
   const [chatInput, setChatInput] = useState('');
 
   function onSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
-    if (!store.discordUser || !chatInput) {
+    if (!discordUser || !chatInput) {
       // TODO: error handling
       return;
     }
 
-    sendChat(chatInput);
-    setChatInput('');
+    fetcher.submit(
+      {
+        intent: 'new',
+        user_id: discordUser!.id,
+        content: chatInput,
+      },
+      {
+        action: '/api/chat',
+        method: 'POST',
+      },
+    );
   }
+
+  useEffect(() => {
+    if (!fetcher.data) {
+      return;
+    }
+    sendChat();
+    setChatInput('');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fetcher.data]);
 
   return (
     <div className="flex flex-col h-full">
       <div className="bg-gray-900 text-white p-4 mb-4 grow">
-        {store.chatLogs?.length &&
-          store.chatLogs.map((chatLog, i) => (
-            <p key={i} className=" px-2 py-1">
-              {chatLog.user.name}: {chatLog.content}
-            </p>
-          ))}
+        {chatLogs.map((chatLog, i) => (
+          <p key={i} className=" px-2 py-1">
+            {chatLog.user.name}: {chatLog.content}
+          </p>
+        ))}
       </div>
       <form className="flex" onSubmit={onSubmit}>
         <FormInput value={chatInput} handleChange={setChatInput} className="w-full" />

@@ -4,23 +4,11 @@ import { ChatLogState, useStore } from '~/store';
 
 export function useWebSocket() {
   const [wsClient, setWsClient] = useState<WebSocket | undefined>();
-  const { chatLogs, setChatLogs, discordUser } = useStore();
+  const { chatLogs, setChatLogs } = useStore();
   const fetcher = useFetcher();
 
-  function sendChat(text: string) {
-    //  FIXME: 順番が逆になってる
-    wsClient!.send(JSON.stringify({ type: 'chat', value: text }));
-    fetcher.submit(
-      {
-        intent: 'new',
-        user_id: discordUser!.id,
-        content: text,
-      },
-      {
-        action: '/api/chat',
-        method: 'POST',
-      },
-    );
+  function sendChat() {
+    wsClient!.send(JSON.stringify({ type: 'chat' }));
   }
 
   function getChat() {
@@ -38,7 +26,6 @@ export function useWebSocket() {
   function onMessage(event: MessageEvent) {
     const data: {
       type: 'chat';
-      value: string;
     } = JSON.parse(event.data);
 
     if (data.type === 'chat') {
@@ -56,6 +43,7 @@ export function useWebSocket() {
 
     client.addEventListener('message', onMessage);
     getChat();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
