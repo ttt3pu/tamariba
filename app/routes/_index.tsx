@@ -21,7 +21,7 @@ export default function Index() {
   }
 
   return (
-    <div className="flex">
+    <div className="flex h-screen p-10">
       <div className="mr-8 w-2/5">
         <ChatPanel />
       </div>

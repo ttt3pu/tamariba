@@ -5,6 +5,14 @@ import { ChatLogState, useStore } from '~/store';
 export function useWebSocket() {
   const [wsClient, setWsClient] = useState<WebSocket | undefined>();
   const { chatLogs, setChatLogs } = useStore();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const [setChatLogsCallbacks, setSetChatLogsCallbacks] = useState<(() => any)[]>([]);
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  function pushSetChatLogsCallbacks(callback: () => any) {
+    setSetChatLogsCallbacks([...setChatLogsCallbacks, callback]);
+  }
+
   const fetcher = useFetcher();
 
   function sendChat() {
@@ -51,10 +59,18 @@ export function useWebSocket() {
       return;
     }
     setChatLogs(fetcher.data as ChatLogState[]);
+
+    setTimeout(() => {
+      setChatLogsCallbacks.forEach((callback) => {
+        callback();
+      });
+    }, 1);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fetcher.data, setChatLogs]);
 
   return {
     chatLogs,
     sendChat,
+    pushSetChatLogsCallbacks,
   };
 }
