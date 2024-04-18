@@ -17,11 +17,14 @@ model ChatLog {
   user       User     @relation(fields: [user_id], references: [id])
   created_at DateTime @default(now())
   content    String
+
+  @@index([user_id])
 }
 
 model User {
-  id      String    @id
-  name    String
-  avatar  String
-  ChatLog ChatLog[]
+  id       String    @id
+  name     String
+  avatar   String
+  ChatLog  ChatLog[]
 }
+
