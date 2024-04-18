@@ -13,7 +13,7 @@ export function useOauth() {
     const client = new UserManager({
       authority: 'https://discord.com',
       client_id: window.ENV.OAUTH_CLIENT_ID!,
-      redirect_uri: window.ENV.OAUTH_REDIRECT_URL!,
+      redirect_uri: `${window.location.protocol}//${window.location.host}/callback`,
       response_type: 'code',
       scope: 'identify',
       userStore: new WebStorageStateStore({ store: window.localStorage }),

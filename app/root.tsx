@@ -10,7 +10,6 @@ export async function loader() {
     ENV: {
       WS_PORT: process.env.WS_PORT,
       OAUTH_CLIENT_ID: process.env.OAUTH_CLIENT_ID,
-      OAUTH_REDIRECT_URL: process.env.OAUTH_REDIRECT_URL,
     },
   });
 }
