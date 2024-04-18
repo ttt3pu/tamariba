@@ -49,7 +49,7 @@ export default function ChatPanel() {
   }
 
   function createFormattedDate(date: Date) {
-    return format(date, 'yyyy-MM-dd hh:mm:ss');
+    return format(date, 'yyyy-MM-dd HH:mm:ss');
   }
 
   useEffect(() => {
