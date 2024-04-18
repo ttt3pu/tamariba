@@ -1,12 +1,12 @@
 // ref: https://discord.com/developers/docs/resources/user
 type DiscordUserResponse = {
-  id: number;
+  id: string;
   username: string;
-  avatar: string; // https://cdn.discordapp.com/avatars/[userId]/[avatorHash].png
+  avatar: string;
 };
 
 type DiscordUserState = {
-  id: number;
+  id: string;
   name: string;
   avatar: string;
 };

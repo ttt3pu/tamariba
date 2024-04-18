@@ -4,6 +4,8 @@ import { IoMdSend } from 'react-icons/io';
 import { useWebSocket } from '~/hooks/useWebSocket';
 import { useStore } from '~/store';
 import { useFetcher } from '@remix-run/react';
+import { format } from 'date-fns';
+import { createAvatarUrl } from '~/utils/client/createAvatarUrl';
 
 export default function ChatPanel() {
   const { sendChat, pushSetChatLogsCallbacks } = useWebSocket();
@@ -12,7 +14,7 @@ export default function ChatPanel() {
 
   const [chatInput, setChatInput] = useState('');
 
-  const chatLogRef = useRef<HTMLElement | null>(null);
+  const chatLogRef = useRef<HTMLDivElement | null>(null);
 
   function onSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -46,6 +48,10 @@ export default function ChatPanel() {
     el.scroll(0, el.scrollHeight);
   }
 
+  function createFormattedDate(date: Date) {
+    return format(date, 'yyyy-MM-dd hh:mm:ss');
+  }
+
   useEffect(() => {
     pushSetChatLogsCallbacks(scrollDown);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -64,8 +70,17 @@ export default function ChatPanel() {
     <div className="flex flex-col h-full">
       <div className="bg-gray-900 text-white p-4 mb-4 grow overflow-y-auto" ref={chatLogRef}>
         {chatLogs.map((chatLog, i) => (
-          <p key={i} className=" px-2 py-1">
-            {chatLog.user.name}: {chatLog.content}
+          <p key={i} className="px-2 py-2 text-sm flex items-baseline">
+            <img
+              src={createAvatarUrl(chatLog.user)}
+              alt={chatLog.user.name}
+              className="w-6 mr-3 rounded-full shrink-0"
+            />
+            <span className="relative bottom-[0.5em] grow">
+              <span className="mr-2">{chatLog.user.name}:</span>
+              {chatLog.content}
+              <span className="text-gray-500 ml-2">({createFormattedDate(chatLog.created_at)})</span>
+            </span>
           </p>
         ))}
       </div>
