@@ -6,12 +6,15 @@ import { useErrors } from '~/utils/server/useErrors';
 export const loader: LoaderFunction = async () => {
   const chatLogs = await prisma.chatLog.findMany({
     take: 50,
+    orderBy: {
+      id: 'desc',
+    },
     include: {
       user: true,
     },
   });
 
-  return json(chatLogs);
+  return json(chatLogs.reverse());
 };
 
 export const action: ActionFunction = async ({ request }) => {
