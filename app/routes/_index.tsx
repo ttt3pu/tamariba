@@ -1,9 +1,10 @@
 import type { MetaFunction } from '@remix-run/node';
-import { FormEvent, useState } from 'react';
+import { FormEvent, useEffect, useState } from 'react';
 import Button from '~/components/atoms/Button';
 import FormInput from '~/components/atoms/FormTextInput';
 import ChatPanel from '~/components/molecules/ChatPanel';
-import YouTubePlayer from '~/components/molecules/YoutubePlayer';
+import NicoPlayer from '~/components/molecules/NicoPlayer';
+// import YouTubePlayer from '~/components/molecules/YoutubePlayer';
 
 export const meta: MetaFunction = () => {
   return [{ title: 'New Remix App' }, { name: 'description', content: 'Welcome to Remix!' }];
@@ -27,7 +28,10 @@ export default function Index() {
       </div>
 
       <div className="grow">
-        <YouTubePlayer className="w-full aspect-video mb-8" videoId={playingVideoId} />
+        <div className="aspect-video mb-4">
+          {/* <YouTubePlayer videoId={playingVideoId} className="w-full h-full" /> */}
+          <NicoPlayer videoId="sm43660155" />
+        </div>
 
         <form className="flex" onSubmit={addVideo}>
           <FormInput

@@ -32,3 +32,8 @@ make dev
 ```sh
 pnpm prisma:migrate --name migration_file_name
 ```
+
+## About niconico player
+
+SSL environment is required to use niconico player.
+Tools such as ngrok must be used during development.

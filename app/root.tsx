@@ -1,9 +1,13 @@
 import { Links, Meta, Outlet, Scripts, ScrollRestoration, json, useLoaderData } from '@remix-run/react';
 import type { LinksFunction } from '@remix-run/node';
-import stylesheet from '~/tailwind.css?url';
+import stylesheetTailwind from '~/assets/css/tailwind.css?url';
+import stylesheetNicoPlayer from '~/assets/css/NicoPlayer.css?url';
 import { useOauth } from './hooks/useOauth';
 
-export const links: LinksFunction = () => [{ rel: 'stylesheet', href: stylesheet }];
+export const links: LinksFunction = () => [
+  { rel: 'stylesheet', href: stylesheetTailwind },
+  { rel: 'stylesheet', href: stylesheetNicoPlayer },
+];
 
 export async function loader() {
   return json({
