@@ -4,10 +4,14 @@ import { IoMdSend } from 'react-icons/io';
 import { useWebSocket } from '~/hooks/useWebSocket';
 import { useStore } from '~/store';
 import { useFetcher } from '@remix-run/react';
-import { format } from 'date-fns';
 import { createAvatarUrl } from '~/utils/client/createAvatarUrl';
+import { createDateTime } from '~/utils/client/dateFormatter';
 
-export default function ChatPanel() {
+type Props = {
+  className?: string;
+};
+
+export default function ChatPanel({ className }: Props) {
   const { sendChat, pushSetChatLogsCallbacks } = useWebSocket();
   const { discordUser, chatLogs } = useStore();
   const fetcher = useFetcher();
@@ -48,10 +52,6 @@ export default function ChatPanel() {
     el.scroll(0, el.scrollHeight);
   }
 
-  function createFormattedDate(date: Date) {
-    return format(date, 'yyyy-MM-dd HH:mm:ss');
-  }
-
   useEffect(() => {
     pushSetChatLogsCallbacks(scrollDown);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -67,7 +67,7 @@ export default function ChatPanel() {
   }, [fetcher.data]);
 
   return (
-    <div className="flex flex-col h-full">
+    <div className={`flex flex-col max-h-[500px] ${className}`}>
       <div className="bg-gray-900 text-white p-4 mb-4 grow overflow-y-auto" ref={chatLogRef}>
         {chatLogs.map((chatLog, i) => (
           <p key={i} className="px-2 py-2 text-sm flex items-baseline">
@@ -79,7 +79,7 @@ export default function ChatPanel() {
             <span className="relative bottom-[0.5em] grow">
               <span className="mr-2">{chatLog.user.name}:</span>
               {chatLog.content}
-              <span className="text-gray-500 ml-2">({createFormattedDate(chatLog.created_at)})</span>
+              <span className="text-gray-500 ml-2">({createDateTime(chatLog.created_at)})</span>
             </span>
           </p>
         ))}

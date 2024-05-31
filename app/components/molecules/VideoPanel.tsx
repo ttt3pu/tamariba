@@ -5,7 +5,6 @@ import FormInput from '~/components/atoms/FormTextInput';
 // import NicoPlayer from '~/components/molecules/NicoPlayer';
 import YouTubePlayer from '~/components/molecules/YoutubePlayer';
 import { useStore } from '~/store';
-import VideoHistory from './VideoHistory';
 import { useWebSocket } from '~/hooks/useWebSocket';
 
 export default function VideoPanel() {
@@ -82,8 +81,6 @@ export default function VideoPanel() {
         </Button>
       </form>
       {errorMessage && <p className=" text-red-400 mt-3 font-bold">{errorMessage}</p>}
-
-      <VideoHistory />
     </div>
   );
 }
