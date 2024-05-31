@@ -1,12 +1,15 @@
 import { useFetcher } from '@remix-run/react';
-import { FormEvent, useState } from 'react';
+import { FormEvent, useEffect, useState } from 'react';
 import Button from '~/components/atoms/Button';
 import FormInput from '~/components/atoms/FormTextInput';
 // import NicoPlayer from '~/components/molecules/NicoPlayer';
 import YouTubePlayer from '~/components/molecules/YoutubePlayer';
 import { useStore } from '~/store';
+import VideoHistory from './VideoHistory';
+import { useWebSocket } from '~/hooks/useWebSocket';
 
 export default function VideoPanel() {
+  const { sendVideoLog } = useWebSocket();
   const [userInput, setUserInput] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const fetcher = useFetcher();
@@ -26,7 +29,7 @@ export default function VideoPanel() {
           user_id: discordUser!.id,
         },
         {
-          action: '/api/video_log/new',
+          action: '/api/video_log',
           method: 'POST',
         },
       );
@@ -41,17 +44,24 @@ export default function VideoPanel() {
           user_id: discordUser!.id,
         },
         {
-          action: '/api/video_log/new',
+          action: '/api/video_log',
           method: 'POST',
         },
       );
       return;
     }
 
-    setUserInput('');
     setErrorMessage('正しい形式で入力してください');
-    // const videoId = videoUserInput.split('?v=')[1];
   }
+
+  useEffect(() => {
+    if (!fetcher.data) {
+      return;
+    }
+    sendVideoLog();
+    setUserInput('');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fetcher.data]);
 
   return (
     <div className="grow">
@@ -60,7 +70,7 @@ export default function VideoPanel() {
         {/* <NicoPlayer videoId="sm43660155" /> */}
       </div>
 
-      <form className="flex" onSubmit={addVideo}>
+      <form className="flex mb-4" onSubmit={addVideo}>
         <FormInput
           value={userInput}
           handleChange={setUserInput}
@@ -72,6 +82,8 @@ export default function VideoPanel() {
         </Button>
       </form>
       {errorMessage && <p className=" text-red-400 mt-3 font-bold">{errorMessage}</p>}
+
+      <VideoHistory />
     </div>
   );
 }

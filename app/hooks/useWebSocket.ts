@@ -1,10 +1,14 @@
 import { useFetcher } from '@remix-run/react';
 import { useEffect, useState } from 'react';
-import { ChatLogState, useStore } from '~/store';
+import { ChatLogState, VideoLogState, useStore } from '~/store';
+
+type WsData = {
+  type: 'chat' | 'video-log';
+};
 
 export function useWebSocket() {
   const [wsClient, setWsClient] = useState<WebSocket | undefined>();
-  const { chatLogs, setChatLogs } = useStore();
+  const { chatLogs, setChatLogs, setVideoLogs } = useStore();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [setChatLogsCallbacks, setSetChatLogsCallbacks] = useState<(() => any)[]>([]);
 
@@ -13,14 +17,23 @@ export function useWebSocket() {
     setSetChatLogsCallbacks([...setChatLogsCallbacks, callback]);
   }
 
-  const fetcher = useFetcher();
+  const fetcherChat = useFetcher();
+  const fetcherVideoLog = useFetcher();
+
+  function wsSend(val: WsData) {
+    wsClient!.send(JSON.stringify(val));
+  }
 
   function sendChat() {
-    wsClient!.send(JSON.stringify({ type: 'chat' }));
+    wsSend({ type: 'chat' });
+  }
+
+  function sendVideoLog() {
+    wsSend({ type: 'video-log' });
   }
 
   function getChat() {
-    fetcher.submit(
+    fetcherChat.submit(
       {
         intent: 'get',
       },
@@ -31,13 +44,28 @@ export function useWebSocket() {
     );
   }
 
-  function onMessage(event: MessageEvent) {
-    const data: {
-      type: 'chat';
-    } = JSON.parse(event.data);
+  function getVideoLogs() {
+    fetcherVideoLog.submit(
+      {
+        intent: 'get',
+      },
+      {
+        action: '/api/video_log',
+        method: 'GET',
+      },
+    );
+  }
 
-    if (data.type === 'chat') {
-      getChat();
+  function onMessage(event: MessageEvent) {
+    const data: WsData = JSON.parse(event.data);
+
+    switch (data.type) {
+      case 'chat':
+        getChat();
+        break;
+      case 'video-log':
+        getVideoLogs();
+        break;
     }
   }
 
@@ -51,14 +79,15 @@ export function useWebSocket() {
 
     client.addEventListener('message', onMessage);
     getChat();
+    getVideoLogs();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
-    if (!fetcher.data) {
+    if (!fetcherChat.data) {
       return;
     }
-    setChatLogs(fetcher.data as ChatLogState[]);
+    setChatLogs(fetcherChat.data as ChatLogState[]);
 
     setTimeout(() => {
       setChatLogsCallbacks.forEach((callback) => {
@@ -66,11 +95,20 @@ export function useWebSocket() {
       });
     }, 1);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [fetcher.data, setChatLogs]);
+  }, [fetcherChat.data, setChatLogs]);
+
+  useEffect(() => {
+    if (!fetcherVideoLog.data) {
+      return;
+    }
+    setVideoLogs(fetcherVideoLog.data as VideoLogState[]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fetcherVideoLog.data, setVideoLogs]);
 
   return {
     chatLogs,
     sendChat,
     pushSetChatLogsCallbacks,
+    sendVideoLog,
   };
 }

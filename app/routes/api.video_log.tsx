@@ -1,8 +1,22 @@
-import { ActionFunction, json } from '@remix-run/node';
+import { ActionFunction, LoaderFunction, json } from '@remix-run/node';
+import { prisma } from '~/utils/server/prismaClient';
 import { useErrors } from '~/utils/server/useErrors';
 import { parseString } from 'xml2js';
-import { prisma } from '~/utils/server/prismaClient';
-import { string, z } from 'zod';
+import { z } from 'zod';
+
+export const loader: LoaderFunction = async () => {
+  const videoLogs = await prisma.videoLog.findMany({
+    take: 50,
+    orderBy: {
+      id: 'desc',
+    },
+    include: {
+      user: true,
+    },
+  });
+
+  return json(videoLogs);
+};
 
 const bodySchema = z.object({
   intent: z.enum(['new']),
@@ -13,14 +27,21 @@ const bodySchema = z.object({
 
 export const action: ActionFunction = async ({ request }) => {
   // eslint-disable-next-line react-hooks/rules-of-hooks
-  const { errors, pushErrors, requiredParams } = useErrors();
+  const { errors, pushErrors } = useErrors();
 
   const { success, error, data } = bodySchema.safeParse(Object.fromEntries(await request.formData()));
 
   if (!success) {
-    return json({
-      validationMessages: error.flatten().fieldErrors,
+    error.issues.forEach((issue) => {
+      pushErrors(issue.message);
     });
+
+    throw json(
+      { errors },
+      {
+        status: 400,
+      },
+    );
   }
 
   const { intent, video_id, user_id, platform } = data;
